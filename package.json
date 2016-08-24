@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "A secure multi client server capable of handling multiple clients",
   "dependencies": {
-    "express": "^4.10.2"
+    "express": "^4.10.2",
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8"
   }
 }

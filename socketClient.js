@@ -27,7 +27,7 @@ var postOptions = {
 	ca  : [ fs.readFileSync('./public-cert.pem')]
 };
 console.log('Trying to establish a secure connection with the server');
-
+	try{
 //Add a connection listener for the client over tls/ssl connection establishment
 var socketClient = tls.connect(3000, HOST, options, function(){
 	console.log('tls connection in progress...');
@@ -35,10 +35,9 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 
 		console.log('CONNECTED OVER TLS/SSL WITH SELF SIGNED KEY AND AUTHORIZED\n');
 		socketClient.on('close', function() {
-		console.log('Extending socket connection after timeout..\n');
-		socketClient.setTimeout(10000);
+			console.log('Extending socket connection after timeout..\n');
+			socketClient.setTimeout(10000);
 		});
-
 		process.stdin.pipe(socketClient);
 		process.stdin.resume();
 
@@ -56,7 +55,7 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 			req.on('error', function(e) {
 				console.log('problem with request: ' + e.message);
 				});
-			// write data to request body
+			//Write data to request body
 			req.write('{"Device_identity": "Device-001", "Latitude": 15.4499170, "Longitude": 73.826066,"Time": "051050","Date": "20160822", "Status": "0x0A", "Speed": 23}');
 			req.end();
 
@@ -66,4 +65,9 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 	}else{
 		console.log('Device unauthorized... Breach Alert!!!');
 	}
+	
 });
+}
+	catch(ex){
+      console.log('Error occured due to : ' + ex + 'Exiting the client');
+	}

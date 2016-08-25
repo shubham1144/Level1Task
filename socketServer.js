@@ -35,7 +35,9 @@ var Schema = mongoose.Schema
 
 var DeviceTrack = new Schema({
 	Device_identity      : { type: String, required: true },
-	Latitude             : { type: String, required: true }
+	Latitude             : Number,
+	Longitude            : Number,
+	Speed                : Number
 });
 
 

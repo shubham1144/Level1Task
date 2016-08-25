@@ -2,35 +2,16 @@
 var HOST = 'localhost';
 var tls = require('tls');
 var fs = require('fs');
-//Adding the https module inorder tosend requests to server once a connection has been established
-var https = require("https");
-//client private key and public certificate
-var key = fs.readFileSync('./client-private-key.pem');
-var cert = fs.readFileSync('./client-public-cert.pem');
-
 //Options to be used when sending tls connection request to server
 var options = { 
 	ca  : [ fs.readFileSync('./public-cert.pem')]
 };
-//RequestOptions to be used used when sending https request to server
-var postOptions = {
-  hostname: 'localhost',
-  port: 3000,
-  path: '/sendstatistics',
-  method: 'POST',
-  headers: {
-      'Content-Type': 'application/json',
 
-  },
-	key: key,
-	cert: cert,
-	ca  : [ fs.readFileSync('./public-cert.pem')]
-};
 console.log('Trying to establish a secure connection with the server');
 	try{
 //Add a connection listener for the client over tls/ssl connection establishment
-var socketClient = tls.connect(3000, HOST, options, function(){
-	console.log('tls connection in progress...');
+var socketClient = tls.connect(8000, HOST, options, function(){
+	console.log('tls connection in progress');
 	if(socketClient.authorized){
 
 		console.log('CONNECTED OVER TLS/SSL WITH SELF SIGNED KEY AND AUTHORIZED\n');
@@ -43,21 +24,11 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 
 		//Send statistical data in intervals
 		setInterval(function() { 
-
+            
 			console.log('Sending out readings every 10 seconds');
-			//sending a post request to server every 10 seconds
-            var req = https.request(postOptions, function(res) {
-			res.setEncoding('utf8');
-			res.on('data', function (body) {
-				console.log(body);
-				});
-				});
-			req.on('error', function(e) {
-				console.log('problem with request: ' + e.message);
-				});
-			//Write data to request body
-			req.write('{"Device_identity": "Device-001", "Latitude": 15.4499170, "Longitude": 73.826066,"Time": "051050","Date": "20160822", "Status": "0x0A", "Speed": 23}');
-			req.end();
+            //Need to send data through the socket itself
+            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": 15.4499170, "Longitude": 73.826066,"Time": "051050","Date": "20160822", "Status": "0x0A", "Speed": 23}');
+
 
 		}, 10000);
 	    //the logic to send data in interval ends here
@@ -71,3 +42,13 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 	catch(ex){
       console.log('Error occured due to : ' + ex + 'Exiting the client');
 	}
+
+//Receive tls data from the server
+socketClient.on("data", function (data) {
+  console.log('echo Server');
+});	
+//Error handler for socket connectoin established
+socketClient.on('error', function (err) {
+  console.log("Error Occured due to  :  " + err);
+  process.exit();
+});	

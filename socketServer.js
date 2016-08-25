@@ -92,23 +92,20 @@ app.use(bodyParser.json());
 //Create API(s) to handle all the incoming https requests(Level 2 tasks)
 //Task 1.API to get cpu utilization % and memory utilization % for a time range
 app.post('/fetchLocalSysHealth', function(request, response){
-	console.log('received request with the following params : ' + request.body.starttime + request.body.stoptime);
-	console.log('Calculating system cpu utilization at time : ' + Date.now());
 	//find all the records from db between the time range 
-	console.log("The startime unix timestamp is : " + moment(request.body.starttime).unix());
 	SystemHealth.find({
     Timestamp: {
         $gte: moment(request.body.starttime).unix(),
         $lt: moment(request.body.stoptime).unix()
     }}, function(err, healthStats){
-       console.log('CPU Utilization Stats between the range is : ' + healthStats.length);
 	//find avg of them all
-	totalCPUtil = 0;
+	totalCPUtil = totalmemUtilization = 0;
 	for (var i = 0, len = healthStats.length; i < len; i++) {
 		totalCPUtil = totalCPUtil + healthStats[i].CpuUtilization; 
+		totalmemUtilization = totalmemUtilization + healthStats[i].MemUtilization;
 	}
-	//send as response to client
-	response.status(200).json({ "CpuUtilization":totalCPUtil/healthStats.length,"count" : healthStats.length});
+	//send % response to client
+	response.status(200).json({ "CpuUtilization":totalCPUtil/healthStats.length, "MemUtilization":totalmemUtilization/healthStats.length});
     }); 
 });
 
@@ -117,7 +114,7 @@ https.listen(PORT, HOST);
 //Function to return unix timestamp from the IST date and time
 function generateUnixTimeStamp(Date, Time){
 
-	return  moment(Date+Time).unix();
+	return  moment(Date+'T'+Time).unix();
 
 };
 //Executing the function every 1 minute to fetch CPU utilization % and then store in db as unix timestamp
@@ -128,7 +125,7 @@ setInterval(function(){
 		CpuStatus = {
 			CpuUtilization : v,
 			MemUtilization : 100 - os.freememPercentage(),
-			Timestamp      : moment(Date.now()).unix()
+			Timestamp      : moment(moment()).unix()
 		};
 
 		//Insert cpu data into database
@@ -138,7 +135,7 @@ setInterval(function(){
 			console.log('Error occured while saving CPU data in db ' + error);
 			}
 			else{
-			console.log('Storing in db with timestamp : ' + systemHealth.Timestamp + ' At timestamp :' + moment(Date.now()).unix());
+			console.log('Storing in db with moment timestamp : ' + systemHealth.Timestamp + ' At system timestamp :' + moment(Date.now()).unix());
 			}
 		});
     });

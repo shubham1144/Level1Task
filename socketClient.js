@@ -67,7 +67,7 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 				console.log('problem with request: ' + e.message);
 				});
 			// write data to request body
-			req.write('{"Device identity": "Device-001"}');
+			req.write('{"Device identity": "Device-001", "Latitude": 15.4499170,"Longitude": 73.826066,"Time": 51050,"Date": 20160822,"Status": "10x0A","Speed": 23}');
 			req.end();
 
 		}, 10000);

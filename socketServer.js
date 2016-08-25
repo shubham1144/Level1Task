@@ -92,4 +92,5 @@ function generateUnixTimeStamp(Date, Time){
 	return  moment(Date+Time).unix();
 
 };
-console.log('Server is runnning on port : ' + PORT );
+console.log('tls Server is runnning on port : ' + TLS_PORT);
+console.log('secure https server running on port : ' + PORT);

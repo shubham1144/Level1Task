@@ -13,20 +13,10 @@ var options = {
 	ca  : [ fs.readFileSync('./public-cert.pem')]
 };
 //RequestOptions to be used used when sending https request to server
-var requestOptions = {
-	hostname: 'localhost',
-	port: 3000,
-	path: '/stats',
-	method: 'GET',
-	key: key,
-	cert: cert,
-	ca  : [ fs.readFileSync('./public-cert.pem')]
-};
-
 var postOptions = {
   hostname: 'localhost',
   port: 3000,
-  path: '/sendstats',
+  path: '/sendstatistics',
   method: 'POST',
   headers: {
       'Content-Type': 'application/json',

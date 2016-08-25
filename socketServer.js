@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //connect to mongodb instance
-mongoose.connect('mongodb://127.0.0.1:27017/firstsampledb');
+mongoose.connect('mongodb://127.0.0.1:27017/devicestatistics');
 
 //attach lister to validate successfull connection
 mongoose.connection.once('connected', function() {
@@ -51,15 +51,9 @@ app.get('/', function(request, response){
 	console.log('Landing page request caught');
 	
 });
-//Create a handler for post request , to receive data from the client socket created using tls sockets.
-app.get('/stats', function(request, response) {
-    console.log('Device Statistics received ...');
-    response.send('Hello Device');
-    
-});
 
 //Create a handler for post request , to receive data from the client socket created using tls sockets.
-app.post('/sendstats', function(request, response) {
+app.post('/sendstatistics', function(request, response) {
     console.log('Device Statistics received ...' + JSON.stringify(request.body));
 //insert the data sent by client into our mongodb database
 var deviceTrack = new DeviceTrack(request.body);

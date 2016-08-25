@@ -60,14 +60,14 @@ var socketClient = tls.connect(3000, HOST, options, function(){
             var req = https.request(postOptions, function(res) {
 			res.setEncoding('utf8');
 			res.on('data', function (body) {
-				console.log('The Server Sent : ' + body);
+				console.log(body);
 				});
 				});
 			req.on('error', function(e) {
 				console.log('problem with request: ' + e.message);
 				});
 			// write data to request body
-			req.write('{"Device identity": "Device-001", "Latitude": 15.4499170,"Longitude": 73.826066,"Time": 51050,"Date": 20160822,"Status": "10x0A","Speed": 23}');
+			req.write('{"Device_identity": "Device-001", "Latitude": 15.4499170}');
 			req.end();
 
 		}, 10000);

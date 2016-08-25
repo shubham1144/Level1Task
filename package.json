@@ -4,6 +4,7 @@
   "description": "A secure multi client server capable of handling multiple clients",
   "dependencies": {
     "body-parser": "^1.15.2",
-    "express": "^4.10.2"
+    "express": "^4.10.2",
+    "mongoose": "^4.5.10"
   }
 }

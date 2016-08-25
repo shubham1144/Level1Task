@@ -37,7 +37,7 @@ var DeviceTrack = new Schema({
 	Device_identity      : { type: String, required: true },
 	Latitude             : Number,
 	Longitude            : Number,
-    Timestamp            : Number,
+	Timestamp            : Number,
 	Status               : { type: String, required: true },
 	Speed                : { type: Number, required: true }
 });
@@ -108,6 +108,19 @@ app.post('/fetchLocalSysHealth', function(request, response){
 	response.status(200).json({ "CpuUtilization":totalCPUtil/healthStats.length, "MemUtilization":totalmemUtilization/healthStats.length});
     }); 
 });
+
+//Task 2.API to get list of devices on the system
+app.get('/listDevicesOnSystem', function(request, response){
+console.log('Fetching list of devices connected on system');
+DeviceTrack.distinct("Device_identity",(function(err, devices){
+	if(err){
+		console.log('Error occured while fetching list of devices on system');
+	}else{
+		response.json(devices);
+	}
+}));
+});
+
 
 //The http server created should listen on a port for clients
 https.listen(PORT, HOST);

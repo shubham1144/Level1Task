@@ -37,7 +37,10 @@ var DeviceTrack = new Schema({
 	Device_identity      : { type: String, required: true },
 	Latitude             : Number,
 	Longitude            : Number,
-	Speed                : Number
+	Time                 : { type: String, required: true },
+	Date                 : { type: String, default: Date.now},
+	Status               : { type: String, required: true },
+	Speed                : { type: Number, required: true }
 });
 
 
@@ -68,7 +71,6 @@ var deviceTrack = new DeviceTrack(request.body);
             }
             else{
             	console.log('Saving data received by server in mongodb instance');
-                //response.json(data);
             }
         });
         response.write('Data received by server..');

@@ -23,6 +23,19 @@ var requestOptions = {
 	ca  : [ fs.readFileSync('./public-cert.pem')]
 };
 
+var postOptions = {
+  hostname: 'localhost',
+  port: 3000,
+  path: '/sendstats',
+  method: 'POST',
+  headers: {
+      'Content-Type': 'application/json',
+
+  },
+	key: key,
+	cert: cert,
+	ca  : [ fs.readFileSync('./public-cert.pem')]
+};
 console.log('Trying to establish a secure connection with the server');
 
 //Add a connection listener for the client over tls/ssl connection establishment
@@ -39,22 +52,23 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 		process.stdin.pipe(socketClient);
 		process.stdin.resume();
 
-		//Send statistical data in interval of 10 seconds
+		//Send statistical data in intervals
 		setInterval(function() { 
 
 			console.log('Sending out readings every 10 seconds');
-			var req = https.request(requestOptions, function(res){
-
-				res.on('data', function(data){
-				console.log('The server send back reply as : ' + data);
-			});
-			});
-
+			//sending a post request to server every 10 seconds
+            var req = https.request(postOptions, function(res) {
+			res.setEncoding('utf8');
+			res.on('data', function (body) {
+				console.log('The Server Sent : ' + body);
+				});
+				});
+			req.on('error', function(e) {
+				console.log('problem with request: ' + e.message);
+				});
+			// write data to request body
+			req.write('{"Device identity": "Device-001"}');
 			req.end();
-
-			req.on('error', function(e){
-			console.error(e);
-			});
 
 		}, 10000);
 	

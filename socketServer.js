@@ -7,6 +7,7 @@ var tls = require('tls');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var os  = require('os-utils');
 //specify the self-signed public certificate and the private key used
 var key = fs.readFileSync('./private-key.pem');
 var cert = fs.readFileSync('./public-cert.pem');
@@ -25,6 +26,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/devicestatistics');
 //attach lister to validate successfull connection
 mongoose.connection.once('connected', function() {
 	console.log("Connected to database successfully using mongoose");
+
 });
 
 var Schema = mongoose.Schema
@@ -78,10 +80,35 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Inorder for the request body to be parsed by the https post method we need to use the below line 
 app.use(bodyParser.json());
 
-//Create a function to handle all the incoming https requests(Level 2 tasks)
-app.get('/', function(request, response){
-	console.log('Landing page request caught');
-	
+//Create API(s) to handle all the incoming https requests(Level 2 tasks)
+//Task 1.API to get cpu utilization % and memory utilization % for a time range
+app.post('/fetchLocalSysHealth', function(request, response){
+	var CpuAvg = [];
+	console.log('received request with the following params : ' + request.body.starttime + request.body.stoptime);
+	console.log('Calculating system cpu utilization at time : ' + Date.now());
+
+	setInterval(function() { 
+         if(Date.now() < request.body.stoptime){
+		//calcutate the cpu utilization at next second so that a avergage can be generated at stop time');
+			os.cpuUsage(function(v){
+			//store the value in a array
+			CpuAvg.push(v);
+			});
+		} else{
+			//calcuate the avg value by dividing the value by array length
+			
+			for (var i = 0, len = CpuAvg.length; i < len; i++) {
+				cpuavgsum = cpuavgsum + CpuAvg[i];
+			}
+
+			response.status(200).json({
+			"CPUUtilization"    : cpuavgsum/CpuAvg.length,
+			"MemoryUtilization" : "NA"
+			});
+		}
+
+	}, 10000);
+    
 });
 
 //The http server created should listen on a port for clients

@@ -57,12 +57,11 @@ var socketClient = tls.connect(3000, HOST, options, function(){
 				console.log('problem with request: ' + e.message);
 				});
 			// write data to request body
-			req.write('{"Device_identity": "Device-001", "Latitude": 15.4499170, "Longitude": 73.826066,"Time": "051050","Date": 20160822, "Status": "0x0A", "Speed": 23}');
+			req.write('{"Device_identity": "Device-001", "Latitude": 15.4499170, "Longitude": 73.826066,"Time": "051050","Date": "20160822", "Status": "0x0A", "Speed": 23}');
 			req.end();
 
 		}, 10000);
-	
-      //The request ends here, also the loop should end here
+	    //the logic to send data in interval ends here
 
 	}else{
 		console.log('Device unauthorized... Breach Alert!!!');

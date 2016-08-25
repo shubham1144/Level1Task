@@ -5,6 +5,7 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.10.2",
+    "moment": "^2.14.1",
     "mongoose": "^4.5.10"
   }
 }

@@ -132,7 +132,6 @@ function generateUnixTimeStamp(Date, Time){
 };
 //Executing the function every 1 minute to fetch CPU utilization % and then store in db as unix timestamp
 setInterval(function(){
-	console.log('Executing the function every 1 minutes..');
 	//need to store timestamp of current time with CPU utilization
 	os.cpuUsage(function(v){
 		CpuStatus = {
@@ -146,9 +145,6 @@ setInterval(function(){
 		systemHealth.save( function(error, data){
 			if(error){
 			console.log('Error occured while saving CPU data in db ' + error);
-			}
-			else{
-			console.log('Storing in db with moment timestamp : ' + systemHealth.Timestamp + ' At system timestamp :' + moment(Date.now()).unix());
 			}
 		});
     });

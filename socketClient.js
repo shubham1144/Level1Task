@@ -2,6 +2,9 @@
 var HOST = 'localhost';
 var tls = require('tls');
 var fs = require('fs');
+//Adding a library to convert ist in format required to be sent
+var moment = require('moment');
+moment().format();
 //Options to be used when sending tls connection request to server
 var options = { 
 	ca  : [ fs.readFileSync('./public-cert.pem')]
@@ -27,11 +30,11 @@ var socketClient = tls.connect(8000, HOST, options, function(){
             
 			console.log('Sending out readings every 10 seconds');
             //Need to send data through the socket itself
-            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": 15.4499170, "Longitude": 73.826066,"Time": "051050","Date": "20160822", "Status": "0x0A", "Speed": 23}');
+            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": 15.4499170, "Longitude": 73.826066,"Time": "'+ moment().format("hmmss") + '","Date": "' + moment().format('YYYYMMDD') + '", "Status": "0x0A", "Speed": 23}');
 
 
 		}, 10000);
-	    //the logic to send data in interval ends here
+	    //The logic to send data in interval ends here
 
 	}else{
 		console.log('Device unauthorized... Breach Alert!!!');

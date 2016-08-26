@@ -121,6 +121,20 @@ DeviceTrack.distinct("Device_identity",(function(err, devices){
 }));
 });
 
+//Task 3.API to get positions between time ranges
+app.post('/getDevicePositions', function(request, response){
+	console.log('The device is : ' + request.body.Device_identity + ' and the time range is as follows : ' + moment(request.body.starttime).unix() + ' to ' + moment(request.body.stoptime).unix());
+	DeviceTrack.find({ Device_identity : request.body.Device_identity, Timestamp : {
+        $gte: moment(request.body.starttime).unix(),
+        $lt: moment(request.body.stoptime).unix()
+    }}, function(err, deviceReadings){
+		if(err){
+			console.log('Error occured while fetching device data due to' + err);
+		}else{
+			response.json(deviceReadings);
+		}
+	});
+});
 
 //The http server created should listen on a port for clients
 https.listen(PORT, HOST);

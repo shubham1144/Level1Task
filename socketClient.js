@@ -2,6 +2,9 @@
 var HOST = 'localhost';
 var tls = require('tls');
 var fs = require('fs');
+var SPEED_LIMIT = 60;
+var MIN_LIMIT_MANIPULATE = 5;
+var MAX_LIMIT_MANIPULATE = 10;
 //Adding a library to convert ist in format required to be sent
 var moment = require('moment');
 moment().format();
@@ -25,12 +28,23 @@ var socketClient = tls.connect(8000, HOST, options, function(){
 		process.stdin.pipe(socketClient);
 		process.stdin.resume();
 
+        //using a counter to manipulate speed for providing relevant data to API's
+        counter = 0, speed = SPEED_LIMIT;
 		//Send statistical data in intervals
 		setInterval(function() { 
-            
+            counter ++;
+        
 			console.log('Sending out readings every 10 seconds');
+			if(counter >= MIN_LIMIT_MANIPULATE  && counter <= MAX_LIMIT_MANIPULATE)
+			{
+              speed = speed + counter;
+
+			}else{
+				speed = SPEED_LIMIT;
+			}
+
             //Need to send data through the socket itself
-            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": 15.4499170, "Longitude": 73.826066,"Time": "'+ moment().format("hmmss") + '","Date": "' + moment().format('YYYYMMDD') + '", "Status": "0x0A", "Speed": 23}');
+            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": 15.4499170, "Longitude": 73.826066,"Time": "'+ moment().format("hmmss") + '","Date": "' + moment().format('YYYYMMDD') + '", "Status": "0x0A", "Speed":' + speed + '}');
 
 
 		}, 10000);

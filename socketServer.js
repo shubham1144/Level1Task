@@ -135,6 +135,14 @@ app.post('/getDevicePositions', function(request, response){
 		}
 	});
 });
+//Task 4.API to get list of devices having speed more than 60 for more than 40 seconds within a specific time range
+app.post('/getOverSpeedingDevices', function(request, response){
+	console.log('Fetching devices having speed more than 60 for more than 40 seconds');
+    DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
+        $lt: moment(request.body.stoptime).unix()}, Speed: { $gt: 60 }}).distinct("Device_identity", function(err, uniqueDevices){
+           response.json(uniqueDevices);
+        });
+});
 
 //The http server created should listen on a port for clients
 https.listen(PORT, HOST);

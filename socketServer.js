@@ -19,6 +19,7 @@ var options = {
 //Adding a library to convert ist timestamp to unix timestamp
 var moment = require('moment');
 moment().format();
+var OVERSPEED_LIMIT = 4, AVG_SPEED = 60;
 
 //connect to mongodb instance
 mongoose.connect('mongodb://127.0.0.1:27017/devicestatistics');
@@ -137,11 +138,36 @@ app.post('/getDevicePositions', function(request, response){
 });
 //Task 4.API to get list of devices having speed more than 60 for more than 40 seconds within a specific time range
 app.post('/getOverSpeedingDevices', function(request, response){
-	console.log('Fetching devices having speed more than 60 for more than 40 seconds');
-    DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
-        $lt: moment(request.body.stoptime).unix()}, Speed: { $gt: 60 }}).distinct("Device_identity", function(err, uniqueDevices){
-           response.json(uniqueDevices);
-        });
+	DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
+	$lt: moment(request.body.stoptime).unix()}, Speed: { $gt: AVG_SPEED }}).distinct("Device_identity", function(err, uniqueDevices){
+		var finalList = [];
+		var device_trv_count = 0;
+		uniqueDevices.forEach(function (device) {
+
+			DeviceTrack.find({ Device_identity : device, Timestamp : {$gte: moment(request.body.starttime).unix(),
+			$lt: moment(request.body.stoptime).unix()}, Speed : {$gt: AVG_SPEED}}, function(err, deviceSpecificData){ 
+				ContSpeedCounter = 0;	
+				deviceSpecificData.forEach(function (deviceData) {
+
+					if(deviceData.Speed > AVG_SPEED){
+					ContSpeedCounter++;
+					}else{
+					ContSpeedCounter = 0;
+					}
+
+					if(ContSpeedCounter > OVERSPEED_LIMIT){
+					finalList.push(deviceData.Device_identity);
+					ContSpeedCounter = 0;
+					}
+				});	 	 
+				device_trv_count++;
+				//Once all the unique devices are analyzed for overspeedding send the response
+				if(device_trv_count == uniqueDevices.length){
+				response.json(finalList);
+				}
+				});
+			});       
+	});
 });
 
 //The http server created should listen on a port for clients

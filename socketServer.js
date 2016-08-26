@@ -19,7 +19,7 @@ var options = {
 //Adding a library to convert ist timestamp to unix timestamp
 var moment = require('moment');
 moment().format();
-var OVERSPEED_LIMIT = 4, AVG_SPEED = 60;
+var OVERSPEED_LIMIT = 4,STAT_LIMIT = 12, AVG_SPEED = 60, STAT_SPEED = 0;
 
 //Connect to mongodb instance
 mongoose.connect('mongodb://127.0.0.1:27017/devicestatistics');
@@ -187,6 +187,46 @@ app.post('/GeoDwell', function(request, response){
         response.json(NearDevices);
 		});
 };
+
+//Task 6. API Stationary Filter : get list of devices stationary for more than 2 minutes
+app.post('/getstationaryDevices', function(request, response){
+	DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
+	$lt: moment(request.body.stoptime).unix()}, Speed: STAT_SPEED }).distinct("Device_identity", function(err, uniqueDevices){
+		var finalStationaryDevList = [];
+		var device_trv_count = 0;
+		uniqueDevices.forEach(function (device) {
+
+			DeviceTrack.find({ Device_identity : device, Timestamp : {$gte: moment(request.body.starttime).unix(),
+			$lt: moment(request.body.stoptime).unix()}, Speed : STAT_SPEED}, function(err, deviceSpecificData){ 
+				ContSpeedCounter = 0;
+				stat_min_limit = false;	
+				deviceSpecificData.forEach(function (deviceData) {
+
+					if(deviceData.Speed == STAT_SPEED){
+						ContSpeedCounter++;
+					}else if(stat_min_limit){
+	                     var Deviceobj = { device: deviceData.Device_identity, 
+	                     	       duration: ContSpeedCounter};                     	 
+	                     finalStationaryDevList.push(Deviceobj);
+	                     ContSpeedCounter = 0;
+	                     stat_min_limit = false;
+					}
+					else{
+						ContSpeedCounter = 0;
+					}
+					if(ContSpeedCounter > STAT_LIMIT && !stat_min_limit){
+						stat_min_limit = true;
+					}
+				});	 	 
+				device_trv_count++;
+				//Once all the unique devices are analyzed for being stationary for more than 2 minutes(120 seconds) send the response
+				if(device_trv_count == uniqueDevices.length){
+				response.json(finalStationaryDevList);
+				}
+				});
+			});       
+	});
+});
 
 //The http server created should listen on a port for clients
 https.listen(PORT, HOST);

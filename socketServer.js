@@ -21,10 +21,10 @@ var moment = require('moment');
 moment().format();
 var OVERSPEED_LIMIT = 4, AVG_SPEED = 60;
 
-//connect to mongodb instance
+//Connect to mongodb instance
 mongoose.connect('mongodb://127.0.0.1:27017/devicestatistics');
 
-//attach lister to validate successfull connection
+//Attach lister to validate successfull connection
 mongoose.connection.once('connected', function() {
 	console.log("Connected to database successfully using mongoose");
 
@@ -44,7 +44,6 @@ var DeviceTrack = new Schema({
 });
 
 //Create a object schema for cpu utilization 
-
 var SystemHealth = new Schema({
 	CpuUtilization : Number,
 	MemUtilization : Number,
@@ -81,9 +80,7 @@ var tlsserver = tls.createServer(options, function (serverSocket) {
 	        });
     });
 
- 
 }).listen(TLS_PORT);
-
 
 //We require body parser to get json data from https post requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -93,7 +90,7 @@ app.use(bodyParser.json());
 //Create API(s) to handle all the incoming https requests(Level 2 tasks)
 //Task 1.API to get cpu utilization % and memory utilization % for a time range
 app.post('/fetchLocalSysHealth', function(request, response){
-	//find all the records from db between the time range 
+	//Find all the records from db between the time range 
 	SystemHealth.find({
     Timestamp: {
         $gte: moment(request.body.starttime).unix(),
@@ -105,7 +102,7 @@ app.post('/fetchLocalSysHealth', function(request, response){
 		totalCPUtil = totalCPUtil + healthStats[i].CpuUtilization; 
 		totalmemUtilization = totalmemUtilization + healthStats[i].MemUtilization;
 	}
-	//send % response to client
+	//Send % response to client
 	response.status(200).json({ "CpuUtilization":totalCPUtil/healthStats.length, "MemUtilization":totalmemUtilization/healthStats.length});
     }); 
 });
@@ -170,6 +167,27 @@ app.post('/getOverSpeedingDevices', function(request, response){
 	});
 });
 
+//Task5. API for Geo Dwell
+app.post('/GeoDwell', function(request, response){
+	console.log('Executing function to get geo dwell');
+	DeviceTrack.find({Timestamp : {$gte: moment(request.body.starttime).unix(),
+	$lt: moment(request.body.stoptime).unix()}}, function(err, devicesData){
+         var NearDevices = [];
+		//Use the below logic to calculate the distance
+		devicesData.forEach(function (deviceData) {
+
+			if(geolib.convertUnit('km', geolib.getDistance(
+			{latitude: deviceData.latitude, longitude: deviceData.longitude},
+			{latitude: request.body.latitude, longitude: request.body.longitude}
+			), 2) < 10){
+				NearDevices.push(deviceData.Device_identity);
+				console.log('device : ' + deviceData.Device_identity + ' was within the time range for the coordinates specified');
+			}
+			});
+        response.json(NearDevices);
+		});
+};
+
 //The http server created should listen on a port for clients
 https.listen(PORT, HOST);
 //Function to return unix timestamp from the IST date and time
@@ -180,14 +198,13 @@ function generateUnixTimeStamp(Date, Time){
 };
 //Executing the function every 1 minute to fetch CPU utilization % and then store in db as unix timestamp
 setInterval(function(){
-	//need to store timestamp of current time with CPU utilization
+	//Need to store timestamp of current time with CPU utilization
 	os.cpuUsage(function(v){
 		CpuStatus = {
 			CpuUtilization : v,
 			MemUtilization : 100 - os.freememPercentage(),
 			Timestamp      : moment(moment()).unix()
 		};
-
 		//Insert cpu data into database
 		var systemHealth = new SystemHealth(CpuStatus);
 		systemHealth.save( function(error, data){
@@ -196,8 +213,6 @@ setInterval(function(){
 			}
 		});
     });
-
-	
 }, 60* 1000);
 
 console.log('tls Server is runnning on port : ' + TLS_PORT);

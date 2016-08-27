@@ -194,33 +194,55 @@ app.post('/getstationaryDevices', function(request, response){
 		var finalStationaryDevList = [];
 		var device_trv_count = 0;
 		uniqueDevices.forEach(function (device) {
-
 			DeviceTrack.find({ Device_identity : device, Timestamp : {$gte: moment(request.body.starttime).unix(),
 			$lt: moment(request.body.stoptime).unix()}, Speed : STAT_SPEED}, function(err, deviceSpecificData){ 
-				ContSpeedCounter = 0;
-				stat_min_limit = false;	
+				ContSpeedCounter = timestamp_Previous = 0;
+				stat_min_limit = deviceIdentified = false;
+				continuousTimeStamp = timestamp_reset = true;	
 				deviceSpecificData.forEach(function (deviceData) {
+			    //Check if the difference between previous timestamp and current timestamp is 10
+				if(timestamp_reset){
+				//for initial condition and when timestamps are not continuous inbeween and 2 min criteria not met
+				continuousTimeStamp = true;
+				timestamp_reset = false;
+				}else if((deviceData.Timestamp - timestamp_Previous) == 10){
+				continuousTimeStamp = true;
+				}
+				else {
+				continuousTimeStamp = false; 
+				}
 
-					if(deviceData.Speed == STAT_SPEED){
-						ContSpeedCounter++;
-					}else if(stat_min_limit){
-	                     var Deviceobj = { device: deviceData.Device_identity, 
-	                     	       duration: ContSpeedCounter};                     	 
-	                     finalStationaryDevList.push(Deviceobj);
-	                     ContSpeedCounter = 0;
-	                     stat_min_limit = false;
-					}
-					else{
-						ContSpeedCounter = 0;
-					}
-					if(ContSpeedCounter > STAT_LIMIT && !stat_min_limit){
-						stat_min_limit = true;
-					}
-				});	 	 
+				if (stat_min_limit && !continuousTimeStamp){
+                    var Deviceobj = { device: deviceData.Device_identity, 
+					duration: ContSpeedCounter/6};                     	 
+					finalStationaryDevList.push(Deviceobj);
+					ContSpeedCounter = 0;
+					stat_min_limit = false;
+					deviceIdentified = true;
+				}
+				else if(!continuousTimeStamp && !stat_min_limit){
+					ContSpeedCounter = 0;
+					timestamp_reset = true;
+				}
+			    else{
+			    	ContSpeedCounter++;
+			    }
+
+				if(ContSpeedCounter > STAT_LIMIT && !stat_min_limit){
+					stat_min_limit = true;
+				}
+					timestamp_Previous = deviceData.Timestamp;
+				});
+                //we need to handle condition when device was stationary for the duration continuosly
+                 if(!deviceIdentified && stat_min_limit){
+                   var Deviceobj = { device: device, 
+					duration: ContSpeedCounter/6}; 
+					finalStationaryDevList.push(Deviceobj);
+                 }
 				device_trv_count++;
 				//Once all the unique devices are analyzed for being stationary for more than 2 minutes(120 seconds) send the response
 				if(device_trv_count == uniqueDevices.length){
-				response.json(finalStationaryDevList);
+					response.json(finalStationaryDevList);
 				}
 				});
 			});       

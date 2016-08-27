@@ -5,9 +5,9 @@ var fs = require('fs');
 var math = require('mathjs');
 var SPEED_LIMIT = 60;
 //The differece between the limits below shold be atleast 5
-var MIN_LIMIT_MANIPULATE = math.random(4, 8);
-var MAX_LIMIT_MANIPULATE = math.random(9, 14);
-var STAT_START_LIMIT     = math.random(3, 7);//assigns a random number to generate dynamic data
+var MIN_LIMIT_MANIPULATE = math.randomInt(4, 8);
+var MAX_LIMIT_MANIPULATE = math.randomInt(9, 14);
+var STAT_START_LIMIT     = math.randomInt(3, 7);//assigns a random number to generate dynamic data
 //Adding a library to convert ist in format required to be sent
 var moment = require('moment');
 moment().format();
@@ -36,21 +36,21 @@ var socketClient = tls.connect(8000, HOST, options, function(){
 		//Send statistical data in intervals
 		setInterval(function() { 
             counter ++;
-        
-			console.log('Sending out readings every 10 seconds');
 			//Manipulate the speed being sent to generate relevant data
 			if(counter >= MIN_LIMIT_MANIPULATE  && counter <= MAX_LIMIT_MANIPULATE)
 			{
               speed = speed + counter;
 
-			}else if(counter == MAX_LIMIT_MANIPULATE + STAT_START_LIMIT){
-
+			}else if(counter == (MAX_LIMIT_MANIPULATE + STAT_START_LIMIT)){
+            
 				speed = 0;
 				stationary = true;
-				stat_limit = math.random(10, 17)//assign random between 10 - 17
+				//assign random between 10 - 17
+				stat_limit = math.randomInt(10, 17);
 			}
 			else if((limit_track < stat_limit) && stationary){
                 speed = 0;
+                limit_track++;
 			}
 			else
 			{

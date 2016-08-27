@@ -61,8 +61,7 @@ var socketClient = tls.connect(8000, HOST, options, function(){
 			latitude = math.random(12, 15).toFixed(6);
 			longitude = math.random(70, 80).toFixed(6);
             //Need to send data through the socket itself
-            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": '+ latitude+ ', "Longitude": ' + longitude + ',"Time": "'+ moment().format("hhmmss") + '","Date": "' + moment().format('YYYYMMDD') + '", "Status": "0x0A", "Speed":' + speed + '}');
-
+            socketClient.write('{"Device_identity": "Device-' + socketClient.localPort + '","Latitude": '+ latitude+ ', "Longitude": ' + longitude + ',"Time": "'+ moment().format("HHmmss") + '","Date": "' + moment().format('YYYYMMDD') + '", "Status": "0x0A", "Speed":' + speed + '}');
 
 		}, 10000);
 	    //The logic to send data in interval ends here

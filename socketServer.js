@@ -200,6 +200,7 @@ app.post('/GeoDwell', function(request, response){
 						inrangeDeviceList.push(devicedata.Device_identity);
 						return false;
 					}
+					return true;
 				});
 				device_trv_count++;
 				//Once all the unique devices are analyzed for overspeedding send the response

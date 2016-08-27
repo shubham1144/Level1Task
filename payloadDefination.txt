@@ -1,18 +1,43 @@
-PAYLOAD DEFINATION
-
-1.sample payload for api for getting list of overspeeding devices
------------------------------------
+##PAYLOAD DEFINITION
+-----------------------------------------------------------------
+#1.sample payload for api for getting list of overspeeding devices
+-----------------------------------------------------------------
 {
 "starttime" : "20160825T080000",
 "stoptime"  : "20160827T180000"
 }
 -----------------------------------
-
-2.sample payload for geo dwell api
+#2.sample payload for geo dwell api
+-----------------------------------
 {
 "latitude"   : "15.449917",
 "longitude"  : "73.826066",
 "starttime" : "20160825T080000",
 "stoptime"  : "20160827T180000"
 }
------------------------------------
+---------------------------------------------------------------
+#3.sample payload for API for getting list of stationary devices
+---------------------------------------------------------------
+{
+"starttime" : "20160827T110030",
+"stoptime"  : "20160827T135000"
+}
+----------------------
+#4.sample payload for API fetchLocalSysHealth
+----------------------
+{
+"starttime" : "20160827T110030",
+"stoptime"  : "20160827T135000"
+}
+----------------------
+#5.API listDevicesOnSystem
+----------------------
+no payload required
+---------------------------------------------
+#6.sample payload for API getDevicePositions
+---------------------------------------------
+{
+"Device_identity" : "Device-53736",
+"starttime" : "20160826T130000",
+"stoptime"  : "20160827T170000"
+}

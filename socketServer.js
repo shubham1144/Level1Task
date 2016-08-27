@@ -8,6 +8,7 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var os  = require('os-utils');
+var GeoPoint = require('geopoint');
 //specify the self-signed public certificate and the private key used
 var key = fs.readFileSync('./private-key.pem');
 var cert = fs.readFileSync('./public-cert.pem');
@@ -19,7 +20,7 @@ var options = {
 //Adding a library to convert ist timestamp to unix timestamp
 var moment = require('moment');
 moment().format();
-var OVERSPEED_LIMIT = 4,STAT_LIMIT = 12, AVG_SPEED = 60, STAT_SPEED = 0;
+var OVERSPEED_LIMIT = 4,STAT_LIMIT = 12, AVG_SPEED = 60, STAT_SPEED = 0, GEO_RANGE = 10;
 
 //Connect to mongodb instance
 mongoose.connect('mongodb://127.0.0.1:27017/devicestatistics');
@@ -181,23 +182,37 @@ app.post('/getOverSpeedingDevices', function(request, response){
 
 //Task5. API for Geo Dwell
 app.post('/GeoDwell', function(request, response){
-	console.log('Executing function to get geo dwell');
-	DeviceTrack.find({Timestamp : {$gte: moment(request.body.starttime).unix(),
-	$lt: moment(request.body.stoptime).unix()}}, function(err, devicesData){
-         var NearDevices = [];
-		//Use the below logic to calculate the distance
-		devicesData.forEach(function (deviceData) {
 
-			if(geolib.convertUnit('km', geolib.getDistance(
-			{latitude: deviceData.latitude, longitude: deviceData.longitude},
-			{latitude: request.body.latitude, longitude: request.body.longitude}
-			), 2) < 10){
-				NearDevices.push(deviceData.Device_identity);
-				console.log('device : ' + deviceData.Device_identity + ' was within the time range for the coordinates specified');
-			}
+	DeviceTrack.find({Timestamp : {$gte: moment(request.body.starttime).unix(),
+	$lt: moment(request.body.stoptime).unix()}}).distinct("Device_identity", function(err, uniqueDevices){
+		//fetched a unique list of devices in the specified time range 
+		try{
+			QueryPoint = new GeoPoint(request.body.Latitude, request.body.Longitude);
+			var inrangeDeviceList = [];
+			var device_trv_count = 0;
+			uniqueDevices.forEach(function(device){
+				DeviceTrack.find({ Device_identity : device, Timestamp : {$gte: moment(request.body.starttime).unix(),
+				$lt: moment(request.body.stoptime).unix()}}, function(err, deviceSpecificData){
+				//For each device data reading check whether in the range of query point
+				deviceSpecificData.every(function(devicedata){
+					var currentPoint = new GeoPoint(devicedata.Latitude, devicedata.Longitude);
+					if(QueryPoint.distanceTo(currentPoint, true) < GEO_RANGE){
+						inrangeDeviceList.push(devicedata.Device_identity);
+						return false;
+					}
+				});
+				device_trv_count++;
+				//Once all the unique devices are analyzed for overspeedding send the response
+				if(device_trv_count == uniqueDevices.length){
+					response.json(inrangeDeviceList);
+				}
+				});			
 			});
-        response.json(NearDevices);
-		});
+		}catch(ex){
+			console.log('Error Occured due to : ' + ex);
+			response.json('{ error : "Invalid params"}');
+		}
+	});
 });
 
 //Task 6. API Stationary Filter : get list of devices stationary for more than 2 minutes

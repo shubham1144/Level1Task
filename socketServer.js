@@ -142,19 +142,32 @@ app.post('/getOverSpeedingDevices', function(request, response){
 
 			DeviceTrack.find({ Device_identity : device, Timestamp : {$gte: moment(request.body.starttime).unix(),
 			$lt: moment(request.body.stoptime).unix()}, Speed : {$gt: AVG_SPEED}}, function(err, deviceSpecificData){ 
-				ContSpeedCounter = 0;	
+				ContSpeedCounter = timestamp_Previous = 0;
+				continuousTimeStamp = timestamp_reset = true;	
 				deviceSpecificData.forEach(function (deviceData) {
-
-					if(deviceData.Speed > AVG_SPEED){
-					ContSpeedCounter++;
-					}else{
+				//Check if the difference between previous timestamp and current timestamp is 10
+				if(timestamp_reset){
+					//for initial condition and when timestamps are not continuous inbetween and 40 seconds criteria not met
+					continuousTimeStamp = true;
+					timestamp_reset = false;
+				}else if((deviceData.Timestamp - timestamp_Previous) == 10){
+					continuousTimeStamp = true;
+				}
+				else {
+					continuousTimeStamp = false; 
+				}
+				if(!continuousTimeStamp){
 					ContSpeedCounter = 0;
-					}
-
-					if(ContSpeedCounter > OVERSPEED_LIMIT){
+					timestamp_reset = true;
+				}
+				else{
+					ContSpeedCounter++;
+				}
+				if(ContSpeedCounter > OVERSPEED_LIMIT){
 					finalList.push(deviceData.Device_identity);
 					ContSpeedCounter = 0;
-					}
+				}
+				timestamp_Previous = deviceData.Timestamp;
 				});	 	 
 				device_trv_count++;
 				//Once all the unique devices are analyzed for overspeedding send the response

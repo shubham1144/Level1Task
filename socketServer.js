@@ -111,7 +111,10 @@ app.post('/fetchLocalSysHealth', function(request, response){
 app.get('/listDevicesOnSystem', function(request, response){
 console.log('Fetching list of devices connected on system');
 DeviceTrack.distinct("Device_identity",(function(err, devices){
-	if(err){
+	if(devices.length == 0){
+		response.json({count : 0 });
+	}
+	else if(err){
 		console.log('Error occured while fetching list of devices on system');
 	}else{
 		response.json(devices);
@@ -121,12 +124,13 @@ DeviceTrack.distinct("Device_identity",(function(err, devices){
 
 //Task 3.API to get positions between time ranges
 app.post('/getDevicePositions', function(request, response){
-	console.log('The device is : ' + request.body.Device_identity + ' and the time range is as follows : ' + moment(request.body.starttime).unix() + ' to ' + moment(request.body.stoptime).unix());
 	DeviceTrack.find({ Device_identity : request.body.Device_identity, Timestamp : {
         $gte: moment(request.body.starttime).unix(),
         $lt: moment(request.body.stoptime).unix()
     }}, function(err, deviceReadings){
-		if(err){
+		if(deviceReadings.length == 0){
+		response.json({count : 0 });
+		}else if(err){
 			console.log('Error occured while fetching device data due to' + err);
 		}else{
 			response.json(deviceReadings);
@@ -137,6 +141,9 @@ app.post('/getDevicePositions', function(request, response){
 app.post('/getOverSpeedingDevices', function(request, response){
 	DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
 	$lt: moment(request.body.stoptime).unix()}, Speed: { $gt: AVG_SPEED }}).distinct("Device_identity", function(err, uniqueDevices){
+		if(uniqueDevices.length == 0){
+			response.json({count : 0 });
+		}
 		var finalList = [];
 		var device_trv_count = 0;
 		uniqueDevices.forEach(function (device) {
@@ -182,10 +189,12 @@ app.post('/getOverSpeedingDevices', function(request, response){
 
 //Task5. API for Geo Dwell
 app.post('/GeoDwell', function(request, response){
-
 	DeviceTrack.find({Timestamp : {$gte: moment(request.body.starttime).unix(),
 	$lt: moment(request.body.stoptime).unix()}}).distinct("Device_identity", function(err, uniqueDevices){
 		//fetched a unique list of devices in the specified time range 
+		if(uniqueDevices.length == 0){
+			response.json({count : 0 });
+		}
 		try{
 			QueryPoint = new GeoPoint(request.body.Latitude, request.body.Longitude);
 			var inrangeDeviceList = [];
@@ -220,6 +229,9 @@ app.post('/GeoDwell', function(request, response){
 app.post('/getstationaryDevices', function(request, response){
 	DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
 	$lt: moment(request.body.stoptime).unix()}, Speed: STAT_SPEED }).distinct("Device_identity", function(err, uniqueDevices){
+		if(uniqueDevices.length == 0){
+			response.json({count : 0 });
+		}
 		var finalStationaryDevList = [];
 		var device_trv_count = 0;
 		uniqueDevices.forEach(function (device) {

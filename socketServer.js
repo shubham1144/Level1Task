@@ -66,7 +66,6 @@ var tlsserver = tls.createServer(options, function (serverSocket) {
 	console.log('Device Statistics received from :  Device-' + serverSocket.remotePort);
 	var jsondataObject = JSON.parse(data);
 	jsondataObject.Timestamp = generateUnixTimeStamp(jsondataObject.Date, jsondataObject.Time);
-
 	//Insert the data sent by client into our mongodb database
 	var deviceTrack = new DeviceTrack(jsondataObject);
          
@@ -186,7 +185,7 @@ app.post('/GeoDwell', function(request, response){
 			});
         response.json(NearDevices);
 		});
-};
+});
 
 //Task 6. API Stationary Filter : get list of devices stationary for more than 2 minutes
 app.post('/getstationaryDevices', function(request, response){
@@ -233,7 +232,7 @@ https.listen(PORT, HOST);
 //Function to return unix timestamp from the IST date and time
 function generateUnixTimeStamp(Date, Time){
 
-	return  moment(Date+'T'+Time).unix();
+	return  moment(Date + 'T' +Time).unix();
 
 };
 //Executing the function every 1 minute to fetch CPU utilization % and then store in db as unix timestamp

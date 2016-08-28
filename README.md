@@ -15,8 +15,7 @@ node -v
 
 #Step 2: 'mongodb' should be installed on the system and should be running on port '127.0.0.1:27017' i.e the default port allocated to mongodb instance.
 
-Step 3: 
-Navigate to the project directory and execute the below command(s) in 'gitbash':
+#Step 3: Navigate to the project directory(git repository to be saved) and execute the below command(s) in 'gitbash':
 
 	```
 	git init
@@ -25,7 +24,7 @@ Navigate to the project directory and execute the below command(s) in 'gitbash':
 	git pull origin master
 
 	```
-#Step 4: Open a terminal 
+#Step 4: In gitbash execute the following from the '../Level1and2Task' root directory
 
 ```
 ls
@@ -53,7 +52,7 @@ node socketServer.js
 the server should be up and running (provided node is installed and mongodb instance running).
 The tls server is allocated port : 8000 and https server is allocated port :3000.
 
-#Step 6: Run the following command to start multiple client processes in parallel and connect over secure tls/ssl connection to the server.
+#Step 6: Run the following command (in a seperate terminal in project root directory )to start multiple client processes in parallel and connect over secure tls/ssl connection to the server.
 
 ```
 node spawnclients.js

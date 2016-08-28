@@ -5,7 +5,7 @@
 ##Steps to setup the application on system
 
 #Step 1: node should be installed on the system.
-       -the installation can be verified by running the below command
+       the installation can be verified by running the below command
 ```
 
 node -v
@@ -28,7 +28,28 @@ README.md		client-private-key.pem	csr.pem			package.json		private-key.pem		socke
 client-csr.pem		client-public-cert.pem	node_modules		payloadDefination.txt	public-cert.pem		socketServer.js		
 
 ```
-#Step 4: Run the following command to start the node server 
+
+
+Step 4: 
+
+Run the following commands:
+   Step 1:
+	* Add the remote and pull from the remote
+	```
+	navigate to folder you want the repository to be and execute the following commands in 'gitbash'
+
+	```
+	git init
+	git remote add origin https://github.com/shubham1144/Level1and2Task.git
+	git remote -v
+	git pull origin master
+	Step 2:
+    * fetch all the node modules required for the application
+	```
+	npm install
+
+	```
+#Step 5: Run the following command to start the node server 
 
 ```
 node socketServer.js
@@ -37,11 +58,9 @@ node socketServer.js
 the server should be up and running (provided node is installed and mongodb instance running).
 The tls server is allocated port : 8000 and https server is allocated port :3000.
 
-#Step 5: Run the following command to start multiple client processes in parallel and connect over secure tls/ssl connection to the server.
+#Step 6: Run the following command to start multiple client processes in parallel and connect over secure tls/ssl connection to the server.
 
 ```
 node spawnclients.js
 
 ```
-
-The application should be up and running and work as per the requirement.

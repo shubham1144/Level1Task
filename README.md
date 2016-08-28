@@ -32,20 +32,13 @@ client-csr.pem		client-public-cert.pem	node_modules		payloadDefination.txt	publi
 
 Step 4: 
 
-Run the following commands:
-   Step 1:
-	* Add the remote and pull from the remote
-	```
-	navigate to folder you want the repository to be and execute the following commands in 'gitbash'
+Run the following commands in 'gitbash':
 
 	```
 	git init
 	git remote add origin https://github.com/shubham1144/Level1and2Task.git
 	git remote -v
 	git pull origin master
-	Step 2:
-    * fetch all the node modules required for the application
-	```
 	npm install
 
 	```

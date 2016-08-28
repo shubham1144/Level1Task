@@ -89,7 +89,7 @@ app.use(bodyParser.json());
 
 //Create API(s) to handle all the incoming https requests(Level 2 tasks)
 //Task 1.API to get cpu utilization % and memory utilization % for a time range
-app.post('/fetchLocalSysHealth', function(request, response){
+app.post('/tracker/fetchLocalSysHealth', function(request, response){
 	//Find all the records from db between the time range 
 	SystemHealth.find({
     Timestamp: {
@@ -108,7 +108,7 @@ app.post('/fetchLocalSysHealth', function(request, response){
 });
 
 //Task 2.API to get list of devices on the system
-app.get('/listDevicesOnSystem', function(request, response){
+app.get('/tracker/listDevicesOnSystem', function(request, response){
 console.log('Fetching list of devices connected on system');
 DeviceTrack.distinct("Device_identity",(function(err, devices){
 	if(devices.length == 0){
@@ -123,7 +123,7 @@ DeviceTrack.distinct("Device_identity",(function(err, devices){
 });
 
 //Task 3.API to get positions between time ranges
-app.post('/getDevicePositions', function(request, response){
+app.post('/tracker/getDevicePositions', function(request, response){
 	DeviceTrack.find({ Device_identity : request.body.Device_identity, Timestamp : {
         $gte: moment(request.body.starttime).unix(),
         $lt: moment(request.body.stoptime).unix()
@@ -138,7 +138,7 @@ app.post('/getDevicePositions', function(request, response){
 	});
 });
 //Task 4.API to get list of devices having speed more than 60 for more than 40 seconds within a specific time range
-app.post('/getOverSpeedingDevices', function(request, response){
+app.post('/tracker/getOverSpeedingDevices', function(request, response){
 	DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
 	$lt: moment(request.body.stoptime).unix()}, Speed: { $gt: AVG_SPEED }}).distinct("Device_identity", function(err, uniqueDevices){
 		if(uniqueDevices.length == 0){
@@ -188,7 +188,7 @@ app.post('/getOverSpeedingDevices', function(request, response){
 });
 
 //Task5. API for Geo Dwell
-app.post('/GeoDwell', function(request, response){
+app.post('/tracker/GeoDwell', function(request, response){
 	DeviceTrack.find({Timestamp : {$gte: moment(request.body.starttime).unix(),
 	$lt: moment(request.body.stoptime).unix()}}).distinct("Device_identity", function(err, uniqueDevices){
 		//fetched a unique list of devices in the specified time range 
@@ -226,7 +226,7 @@ app.post('/GeoDwell', function(request, response){
 });
 
 //Task 6. API Stationary Filter : get list of devices stationary for more than 2 minutes
-app.post('/getstationaryDevices', function(request, response){
+app.post('/tracker/getstationaryDevices', function(request, response){
 	DeviceTrack.find({ Timestamp : {$gte: moment(request.body.starttime).unix(),
 	$lt: moment(request.body.stoptime).unix()}, Speed: STAT_SPEED }).distinct("Device_identity", function(err, uniqueDevices){
 		if(uniqueDevices.length == 0){

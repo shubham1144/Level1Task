@@ -220,7 +220,7 @@ app.post('/tracker/GeoDwell', function(request, response){
 			});
 		}catch(ex){
 			console.log('Error Occured due to : ' + ex);
-			response.json('{ error : "Invalid params"}');
+			response.status(403).json('{ error : "Invalid params/missing params"}');
 		}
 	});
 });

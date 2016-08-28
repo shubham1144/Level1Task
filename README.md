@@ -15,40 +15,35 @@ node -v
 
 #Step 2: 'mongodb' should be installed on the system and should be running on port '127.0.0.1:27017' i.e the default port allocated to mongodb instance.
 
-#Step 3: Open a terminal and navigate to the project directory and hit the below command
-
-```
-ls
-
-```
-we will be able to see a list of files available as below
-
-```
-README.md		client-private-key.pem	csr.pem			package.json		private-key.pem		socketClient.js		spawnclients.js
-client-csr.pem		client-public-cert.pem	node_modules		payloadDefination.txt	public-cert.pem		socketServer.js		
-
-```
-
-
-Step 4: 
-
-Run the following commands:
-   Step 1:
-	* Add the remote and pull from the remote
-	```
-	navigate to folder you want the repository to be and execute the following commands in 'gitbash'
+Step 3: 
+Navigate to the project directory and execute the below command(s) in 'gitbash':
 
 	```
 	git init
 	git remote add origin https://github.com/shubham1144/Level1and2Task.git
 	git remote -v
 	git pull origin master
-	Step 2:
-    * fetch all the node modules required for the application
-	```
-	npm install
 
 	```
+#Step 4: Open a terminal 
+
+```
+ls
+
+```
+we should be able to see a list of files available as below
+
+```
+README.md		client-private-key.pem	csr.pem			package.json		private-key.pem		socketClient.js		spawnclients.js
+client-csr.pem		client-public-cert.pem	node_modules		payloadDefination.txt	public-cert.pem		socketServer.js		
+
+```
+* Execute the below command
+```
+npm install
+
+```
+
 #Step 5: Run the following command to start the node server 
 
 ```
